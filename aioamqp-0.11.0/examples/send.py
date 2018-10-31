@@ -13,12 +13,12 @@ def send():
     transport, protocol = yield from aioamqp.connect()
     channel = yield from protocol.channel()
 
-    yield from channel.queue_declare(queue_name='a')
+    yield from channel.queue_declare(queue_name='b')
 
     yield from channel.basic_publish(
-        payload="C:\sqlite\db\chinook.db xml",
+        payload="C:\sqlite\db\chinook.db json",
         exchange_name='',
-        routing_key='a'
+        routing_key='b'
     )
 
     print(" [x] Sent 'Hello World!'")

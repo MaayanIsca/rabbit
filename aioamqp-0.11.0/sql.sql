@@ -1,4 +1,4 @@
-select  ar.name artistName, g.name genreName
+select  ar.artistName, g.genreName
 from tracks t 
 join albums a on a.AlbumId=t.AlbumId
 join artists ar on ar.artistId= a.artistId
@@ -15,12 +15,36 @@ select count(ii.trackId) sum,i.billingCountry AS Country
 from invoices i 
 join invoice_items ii on i.invoiceId=ii.invoiceId 
 group by i.billingCountry;
-select max(a.count) countMax,a.trackId,a.country from (
-select count(ii.trackId) count,ii.trackId,i.billingCountry AS Country 
+select a.countTrack,a.TrackId,a.Country
+from
+(select distinct count(ii.trackId) countTrack,ii.TrackId,i.billingCountry AS Country 
 from invoices i 
 join invoice_items ii on i.invoiceId=ii.invoiceId 
 group by ii.tracKId, i.billingCountry) a
-group by a.trackId, a.country;
+inner join(
+select max(b.count) maxCount,b.country from (
+select count(ii.trackId) count,ii.trackId,i.billingCountry AS Country 
+from invoices i 
+join invoice_items ii on i.invoiceId=ii.invoiceId 
+group by ii.tracKId, i.billingCountry) b
+group by b.country) c
+on c.maxCount=a.countTrack and c.country=a.country;
+select a.countTrack,a.TrackId,a.Country
+from
+(select distinct count(ii.trackId) countTrack,ii.TrackId,i.billingCountry AS Country 
+from invoices i 
+join invoice_items ii on i.invoiceId=ii.invoiceId 
+where i.billingCountry='USA' and i.invoiceDate>date('2011-01-01')
+group by ii.tracKId, i.billingCountry) a
+inner join(
+select max(b.count) maxCount,b.country from (
+select count(ii.trackId) count,ii.trackId,i.billingCountry AS Country 
+from invoices i 
+join invoice_items ii on i.invoiceId=ii.invoiceId 
+where i.billingCountry='USA' and i.invoiceDate>date('2011-01-01')
+group by ii.tracKId, i.billingCountry) b
+group by b.country) c
+on c.maxCount=a.countTrack and c.country=a.country;
 select b.CustomerId, b.name from(
 select a.CustomerId, a.name, a.a+a.b+a.c+a.d+a.e+a.f+a.g+a.h+a.i as count from(
 SELECT c.CustomerId,  c.FirstName||' '||c.LastName as name, CASE WHEN c.Phone IS NULL THEN 1 ELSE 0 END a,
